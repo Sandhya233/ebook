@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const userRouter = require("./routes/users");
+const categoryRouter = require("./routes/category");
 const multer = require("multer");
 dotenv.config();
 //database connection
@@ -16,7 +17,7 @@ mongoose
 
 app.use(express.json());
 app.use(userRouter);
-
+app.use(categoryRouter);
 app.listen(3000, () => {
     console.log(`server is running`);
 });
