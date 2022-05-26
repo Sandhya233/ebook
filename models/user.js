@@ -45,7 +45,8 @@ const userSchema = new mongoose.Schema({
         required:true,
         trim:true
         },
-},
+  },
+    {timestamps:true},
 ],  
   gender: String,
   address: String,
@@ -58,9 +59,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     enum: ["admin", "basic"],
     default:"basic"
-  }
-}, {
-  timestamps: true
+  },
+ 
+
 });
 userSchema.method.toJSON=function(){
   const user=this;
@@ -70,7 +71,6 @@ userSchema.method.toJSON=function(){
   return userObject;
 };
 userSchema.methods.generateAuthToken=async function(){
-
   const user=this;
   const token=jwt.sign({_id:user._id},process.env.JWT_SECRET)
   user.tokens=user.tokens.concat({token});
@@ -89,7 +89,7 @@ userSchema.statics.findByCredentials = async (email,password)=>{
   return user;
 };
 userSchema.pre("save",async function(next){
-  const user=this;
+const user = this;
   if(user.isModified("password")){
       user.password=await bcrypt.hash(user.password,8);
   }
@@ -97,5 +97,4 @@ userSchema.pre("save",async function(next){
 });
 const User=mongoose.model("User",userSchema);
 module.exports=User;
-
 module.exports = mongoose.model("User", userSchema);
