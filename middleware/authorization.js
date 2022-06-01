@@ -18,7 +18,7 @@ function getUserAuthorization(req, res, next){
         return res.status(404).send("Something went wrong");
             }
 }
-async function categoryPermissions(req, res, next){
+/*async function categoryPermissions(req, res, next){
     const user = req.user;
     try{
         await Category.findById(req.params.id)
@@ -43,6 +43,6 @@ async function categoryPermissions(req, res, next){
     }
 
 }
-
+*/
 module.exports.getUserAuthorization = getUserAuthorization;
-module.exports.categoryPermissions = categoryPermissions;
+//module.exports.categoryPermissions = categoryPermissions;
