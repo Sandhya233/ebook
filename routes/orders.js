@@ -3,7 +3,6 @@ const router = new express.Router();
 const User = require("../models/user");
 const Book = require("../models/book");
 const Order = require("../models/order");
-const auth = require("../middleware/auth");
 const { check, validationResult } = require("express-validator");
 const req = require("express/lib/request");
 const res = require("express/lib/response");

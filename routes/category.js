@@ -1,12 +1,36 @@
 const express = require("express");
 const router = new express.Router();
+const User = require("../models/user");
+//const { categoryPermissions } = require("../middleware/authorization");
+const {getUserAuthorization} = require("../middleware/authorization");
+const {verifylogin} = require("../middleware/verifylogin");
 const Category = require("../models/category");
-router.post('/category', async (req, res) => {
+const { check, validationResult, body } = require("express-validator");
+router.post('/category',verifylogin, getUserAuthorization, [
+  check("title").notEmpty().withMessage("Title cannot be empty")
+  .isLength({ max: 10})
+  .withMessage("Title should have maximum 10 characters"),
+  check("description")
+    .notEmpty()
+    .withMessage("Description cannot be empty"),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    var allErrors = {};
+    errors.errors.forEach(function (err) {
+      allErrors[err.param] = err.msg;
+    });
+    return res.json({
+      status: "fail",
+      data: allErrors,
+    });
+  }
     const category = new Category({
         title: req.body.title,
         description:req.body.description
     })
-    try {
+  try {
+  
         await category.save()
         res.status(201).json({ status: "success", data: { posts: category } });
 
@@ -40,8 +64,26 @@ router.get('/categories/:id', async (req, res) => {
       });
     }
   });
-router.put('/category/:id', async (req, res) => {
+router.put('/category/:id',verifylogin, getUserAuthorization,[
+  check("title").notEmpty().withMessage("Title cannot be empty")
+  .isLength({ max: 10})
+  .withMessage("Title should have maximum 10 characters"),
+  check("description")
+    .notEmpty()
+    .withMessage("Description cannot be empty"),
+],async (req, res) => {
   try {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        var allErrors = {};
+        errors.errors.forEach(function (err) {
+          allErrors[err.param] = err.msg;
+        });
+        return res.json({
+          status: "fail",
+          data: allErrors,
+        });
+      }
     const category = await Category.findByIdAndUpdate(req.params.id, {
       title: req.body.title,
       description:req.body.description,
@@ -57,7 +99,7 @@ router.put('/category/:id', async (req, res) => {
   });
 }
 })
-router.delete('/category/:id', async (req, res) => {
+router.delete('/category/:id',verifylogin, getUserAuthorization,async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
    
