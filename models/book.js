@@ -12,12 +12,14 @@ const bookSchema = new mongoose.Schema({
         ref:'category',
     }], 
     price: Number,
-    reviews: [{
+    /*reviews: [{
         type: mongoose.Schema.Types.ObjectId,
         ref:'reviews',
-    }],
-    image: {
+    }],*/
+    booksImage: {
         type: String,
         default: "",
       }
 })
+
+module.exports = mongoose.model("Book", bookSchema);

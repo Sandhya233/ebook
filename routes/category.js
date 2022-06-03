@@ -32,7 +32,7 @@ router.post('/category',verifylogin, getUserAuthorization, [
   try {
   
         await category.save()
-        res.status(201).json({ status: "success", data: { posts: category } });
+        res.status(201).json({ status: "success", data: { category: category } });
 
     } catch (error) {
         console.log(error)
@@ -45,7 +45,7 @@ router.post('/category',verifylogin, getUserAuthorization, [
 router.get("/categories", async (req, res) => {
     try {
       const category = await Category.find({});
-      res.json({ status: "success", data: { posts: category } });
+      res.json({ status: "success", data: { category: category } });
     } catch (error) {
       res.status(400).json({
         status: "error",
@@ -56,7 +56,7 @@ router.get("/categories", async (req, res) => {
 router.get('/categories/:id', async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
-      res.json({ status: "success", data: { posts: category } });
+      res.json({ status: "success", data: { category: category } });
     } catch (error) {
       res.status(400).json({
         status: "error",
@@ -90,7 +90,7 @@ router.put('/category/:id',verifylogin, getUserAuthorization,[
     }, {
       new: true,
     });
-  res.json({ status: "success", data: { posts: category } });
+  res.json({ status: "success", data: { category: category } });
   } catch (error) {
     console.log("error")
   res.status(400).json({
@@ -105,7 +105,7 @@ router.delete('/category/:id',verifylogin, getUserAuthorization,async (req, res)
    
     return res.json({
       status: "success",
-      data: { post: category },
+      data: { category: category },
       messsage: "deleted successfully ",
     });
   }

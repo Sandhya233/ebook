@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
-    info : {
-        id : {
+
+        bookid : {
             type : mongoose.Schema.Types.ObjectId,
-            ref : "book",
+            ref : "Book",
         },
-        title : String,
-    },
     quantity: {
         type: String,
         default:1,
@@ -22,14 +20,10 @@ const orderSchema = new mongoose.Schema({
      },
      
      user_id : {
-         id : {
              type : mongoose.Schema.Types.ObjectId,
              ref : "User",
-         },
-         username: String,
-         phoneno: String,
-         
-    },
+       
+          },
     status: {
         type: String, 
         enum: ['Pending', 'Confirmed'],
@@ -41,4 +35,4 @@ const orderSchema = new mongoose.Schema({
      }
  });
  
- module.exports =  mongoose.model("Order", orderSchema);
+module.exports = mongoose.model("Order", orderSchema);

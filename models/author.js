@@ -1,5 +1,4 @@
-const mongoose = require("mongoose"),
-  passportLocalMongoose = require("passport-local-mongoose");
+const mongoose = require("mongoose")
 
 const authorSchema = new mongoose.Schema({
   firstName: {
@@ -30,7 +29,5 @@ const authorSchema = new mongoose.Schema({
     default: "",
   },
 });
-
-authorSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("Author", authorSchema);
