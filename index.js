@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const userRouter = require("./routes/users");
 const categoryRouter = require("./routes/category");
+const reviewRouter = require("./routes/review");
 const authorRouter = require("./routes/author");
 const orderRouter = require("./routes/orders");
 const bookRouter=require("./routes/books");
@@ -24,6 +25,7 @@ app.use(categoryRouter);
 app.use(bookRouter);
 app.use(authorRouter);
 app.use(orderRouter);
+app.use(reviewRouter);
 app.listen(3000, () => {
     console.log(`server is running`);
 });

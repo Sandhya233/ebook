@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const User = require("../models/user");
 const Book = require("../models/book");
+const Review = require("../models/review");
 const {getUserAuthorization} = require("../middleware/authorization");
 const {verifylogin} = require("../middleware/verifylogin");
 const { check, validationResult } = require("express-validator");
@@ -59,7 +60,7 @@ router.post(
       const book = new Book(req.body);
       try {
         await book.save();
-        console.log(book);
+        console.log(book.review);
         res.status(201).json({ status: "success", data: { book: book} });
       } catch (error) {
         console.log(error);
@@ -85,6 +86,7 @@ router.get("/books",
   async(req, res)=>{
     try {
       const books = await Book.findById(req.params.id)
+      console.log(books.review)
       res.json({ status: "success", data: { book: books } });
         }
     catch(ex){

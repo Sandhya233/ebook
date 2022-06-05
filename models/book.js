@@ -4,18 +4,14 @@ const bookSchema = new mongoose.Schema({
     ISBN: String,
     author: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'author',
+        ref:'Author',
     }],
     description: String,
     category:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'category',
+        ref:'Category',
     }], 
     price: Number,
-    /*reviews: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'reviews',
-    }],*/
     booksImage: {
         type: String,
         default: "",

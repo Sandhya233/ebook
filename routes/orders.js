@@ -8,6 +8,7 @@ const { check, validationResult } = require("express-validator");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
 const { verifylogin } = require("../middleware/verifylogin");
+const { getUserAuthorization } = require("../middleware/authorization");
 router.post(
     "/order",verifylogin,
    [
@@ -65,7 +66,7 @@ router.get("/orders",
   async(req, res)=>{
     try{
         const user = req.user;
-        await Order.find({user_id: user._id}, (error, order)=>{
+        Order.find({user_id: user._id}, (error, order)=>{
             if(error){
                 return res.status(400).send({status: "error", message: "something went wrong while getting your orders!"});
             }
@@ -76,6 +77,65 @@ router.get("/orders",
         return res.status(400).send({status: "error", message: "Can't get orders"});
     }
  });
-      
-      
+ router.get("/orders/:id",verifylogin,getUserAuthorization,
+          (req, res)=>{
+            try {
+              const user=req.user
+              const orders =  Order.find({user: req.params.user_id})
+              .exec((error, orders)=>{
+                if (error) {
+                    console.log(error)
+                      return res.send({status: "error", message: error});
+                  }
+                  console.log(orders)
+                  return res.status(200).send({status: "success", data:{orders: orders}});
+              });
+            } catch (ex) {
+              console.log(ex)
+              return res.status(400).send({status: "error", message: "Something went wrong"});
+          }
+  });
+  router.put('/order/:id',verifylogin,async (req, res) => {
+    try {
+      const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          var allErrors = {};
+          errors.errors.forEach(function (err) {
+            allErrors[err.param] = err.msg;
+          });
+          return res.json({
+            status: "fail",
+            data: allErrors,
+          });
+        }
+      const orders = await Order.findByIdAndUpdate(req.params.id, {
+        ...req.body
+      }, {
+        new: true,
+      });
+    res.json({ status: "success", data: { orders: orders } });
+    } catch (error) {
+      console.log("error")
+    res.status(400).json({
+      status: "error",
+      message: "Server error",
+    });
+  }
+  })   
+  router.delete("/order/:id",verifylogin,
+  async (req, res)=>{
+     try{
+       const order= await Order.findByIdAndDelete(req.params.id);
+
+       return res.json({
+         status: "success",
+         data: { order:order },
+         messsage: "deleted successfully ",
+       });
+     }
+     catch (error) {
+       console.log(error);
+       res.status(400).json({ status: "error", message: "Server error" });
+     }
+}) 
 module.exports = router;
