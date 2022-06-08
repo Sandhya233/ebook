@@ -3,6 +3,7 @@ const router = new express.Router();
 const User = require("../models/user");
 const Book = require("../models/book");
 const Review = require("../models/review");
+const { bookController } = require("../controllers/bookcontroller");
 const {getUserAuthorization} = require("../middleware/authorization");
 const {verifylogin} = require("../middleware/verifylogin");
 const { check, validationResult } = require("express-validator");
@@ -153,4 +154,5 @@ router.put('/books/:id',type,verifylogin,getUserAuthorization,[
   });
 }
 })
+router.get("/",(bookController.getAllProducts));
 module.exports = router;
