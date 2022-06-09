@@ -1,10 +1,15 @@
 const express = require("express");
+const bcrypt=require('bcryptjs')
 const router = new express.Router();
+const jwt=require('jsonwebtoken')
+const crypto=require("crypto")
 const User = require("../models/user");
+const {verifylogin} = require("../middleware/verifylogin");
 const { check, validationResult, body } = require("express-validator");
 const res = require("express/lib/response");
 const req = require("express/lib/request");
 const { update } = require("../models/user");
+
 //register user
 router.post(
     "/user/register",
@@ -98,5 +103,97 @@ router.post(
     });
   }
 );
+router.get("/user/resetpassword",  (req, res) => {
+  const randomToken = crypto.randomBytes(8).toString('hex');
+  console.log(randomToken)
+  const userData = User.findOne({ email: req.body.email })
+    .then(user => {
+      console.log(user)
+      if (!user)
+      {
+        return res.status(400)
+        .send({ status: 'fail', message: 'email doesnot exists' });
+      }
+      user.resetToken = randomToken;
+      user.resetTokenExpiry = Date.now() + 3600000;
+      return user.save();
+    }).then(result => {
+      res.send({
+        status: 'success',
+        data: {
+          email: req.body.email,
+          resetToken: randomToken,
+          message: `send post to localhost:3000/user/password/${randomToken}`
+        }
+      });
+    })
+    .catch(err => {
+      res.send({ status: 'fail', message: err.message })
+    }) 
+}
+)
+router.post("/user/password/:resettoken", async (req, res) => {
+  const resetToken = req.params.resettoken;
+        console.log(resetToken);
+        const password = req.body.password;
+        const userId = req.body.userId;
+        let resetUser;
+        await User.findOne({
+                resetToken: resetToken,
+                resetTokenExpiry: { $gt: Date.now() },
+                _id: userId
+            })
+            .then(user => {
+                resetUser = user;
+                console.log(resetUser);
+                return bcrypt.hashSync(password, 10);
+            })
+            .then(hashedPassword => {
+                resetUser.password = hashedPassword;
+                resetUser.resetToken = undefined;
+                resetUser.resetTokenExpiry = undefined;
+                return resetUser.save();
+            })
+            .then(result => {
+                res.send({ status: 'success', result })
+            })
+            .catch(err => {
+                res.send({ status: 'fail', msg: err.message });
+            })
+})
+router.post("/user/changepassword",verifylogin, async (req, res) => {
+  try {
+      const oldPassword = req.body.oldPassword;
+      const newPassword = req.body.newPassword;
+      console.log(req.user);
+      const currentUser = req.user;
+      if (bcrypt.compareSync(oldPassword, currentUser.password)) {
+          const hashedPassword = bcrypt.hashSync(newPassword, );
+          await User.updateOne({
+              _id: currentUser.id
+          }, {
+              password: hashedPassword
+          });
+          const user = await User.findOne({ id: currentUser._id })
+          const accessToken = jwt.sign({
+              userId: user._id,
+              role: user.role,
+          }, process.env.JWT_PRIVATE_KEY);
+        
+          return res.status(200).send({
+              status: 'success',
+              message: 'Password updated successfully',
+              accessToken: accessToken
+          })
+      } else {
+          return res.send({ status: 'fail', message: 'Password does not match' });
+      }
+  } catch (err) {
+    console.log(err)
+      res.send({ status: 'fail', message: err })
+  }
+})
+  
+  
   module.exports = router;
   

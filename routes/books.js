@@ -3,7 +3,6 @@ const router = new express.Router();
 const User = require("../models/user");
 const Book = require("../models/book");
 const Review = require("../models/review");
-const { bookController } = require("../controllers/bookcontroller");
 const {getUserAuthorization} = require("../middleware/authorization");
 const {verifylogin} = require("../middleware/verifylogin");
 const { check, validationResult } = require("express-validator");
@@ -76,10 +75,26 @@ router.post(
 router.get("/books",
           async(req, res)=>{
             try {
-              const books = await Book.find()
+              let query = {};
+              if (req.query.category) {
+                query.category = req.query.category;
+              }
+              if (req.query.title) {
+                query.title = req.query.title;
+              }
+              if (req.query.author) {
+                query.author = req.query.author;
+              }
+              if(req.query.keyword){
+                	query.$or=[
+                		{ "title" : { $regex: req.query.keyword, $options: 'i' } },
+                	];
+                }
+               const books = await Book.find(query);
               res.json({ status: "success", data: { book: books } });
                 }
-            catch(ex){
+            catch (ex) {
+              console.log(ex)
                 return res.status(400).send({status: "error", message: "Something went wrong"});
             }
   });
@@ -154,5 +169,4 @@ router.put('/books/:id',type,verifylogin,getUserAuthorization,[
   });
 }
 })
-router.get("/",(bookController.getAllProducts));
 module.exports = router;

@@ -60,6 +60,8 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "basic"],
     default:"basic"
   },
+  resetToken: String,
+  resetTokenExpiry: Date
  
 
 });
@@ -86,7 +88,7 @@ userSchema.statics.findByCredentials = async (email,password)=>{
   if(!isMatch){
       throw new Error("Username and password doesnot match");
   }
-  return user;
+  return user;1
 };
 userSchema.pre("save",async function(next){
 const user = this;
