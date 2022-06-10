@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt=require('bcryptjs')
 const router = new express.Router();
+const nodemailer = require("nodemailer");
 const jwt=require('jsonwebtoken')
 const crypto=require("crypto")
 const User = require("../models/user");
@@ -118,12 +119,25 @@ router.get("/user/resetpassword",  (req, res) => {
       user.resetTokenExpiry = Date.now() + 3600000;
       return user.save();
     }).then(result => {
-      res.send({
+    let  transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "bloodnetworkapp@gmail.com", 
+          pass: "cxbaishzvmbgxqxo", 
+        },
+      });
+      let info =  transporter.sendMail({
+        from: '"E-Book" bloodnetworkapp@gmail.com', 
+        to: req.body.email, 
+        subject: "Reset password",
+        html: `<p>reset your password with the link</p> <a href="http://localhost:3000/user/password/${randomToken}">localhost:3000/user/password/${randomToken}</a> `, 
+      });
+        res.send({
         status: 'success',
         data: {
           email: req.body.email,
           resetToken: randomToken,
-          message: `send post to localhost:3000/user/password/${randomToken}`
+          message: `check your gmail`
         }
       });
     })
@@ -133,33 +147,35 @@ router.get("/user/resetpassword",  (req, res) => {
 }
 )
 router.post("/user/password/:resettoken", async (req, res) => {
-  const resetToken = req.params.resettoken;
-        console.log(resetToken);
-        const password = req.body.password;
-        const userId = req.body.userId;
-        let resetUser;
-        await User.findOne({
-                resetToken: resetToken,
-                resetTokenExpiry: { $gt: Date.now() },
-                _id: userId
-            })
-            .then(user => {
-                resetUser = user;
-                console.log(resetUser);
-                return bcrypt.hashSync(password, 10);
-            })
-            .then(hashedPassword => {
-                resetUser.password = hashedPassword;
-                resetUser.resetToken = undefined;
-                resetUser.resetTokenExpiry = undefined;
-                return resetUser.save();
-            })
-            .then(result => {
-                res.send({ status: 'success', result })
-            })
-            .catch(err => {
-                res.send({ status: 'fail', msg: err.message });
-            })
+  try {
+    const resetToken = req.params.resettoken;
+    console.log(resetToken);
+    const password = req.body.password;
+    const userId = req.body.userId;
+    let resetUser;
+    await User.findOne({
+      resetToken: resetToken,
+      resetTokenExpiry: { $gt: Date.now() },
+      _id: userId
+    })
+      .then(user => {
+        resetUser = user;
+        console.log(resetUser);
+        return bcrypt.hashSync(password, 10);
+      })
+      .then(hashedPassword => {
+        resetUser.password = hashedPassword;
+        resetUser.resetToken = undefined;
+        resetUser.resetTokenExpiry = undefined;
+        return resetUser.save();
+      })
+      .then(result => {
+        res.send({ status: 'success', result })
+      })
+  }
+  catch (err) {
+    res.send({ status: 'fail', msg: err.message });
+  }
 })
 router.post("/user/changepassword",verifylogin, async (req, res) => {
   try {
@@ -193,7 +209,6 @@ router.post("/user/changepassword",verifylogin, async (req, res) => {
       res.send({ status: 'fail', message: err })
   }
 })
-  
   
   module.exports = router;
   
