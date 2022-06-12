@@ -4,7 +4,8 @@ const User = require("../models/user");
 const Book = require("../models/book");
 const Review = require("../models/review");
 const {getUserAuthorization} = require("../middleware/authorization");
-const {verifylogin} = require("../middleware/verifylogin");
+const { verifylogin } = require("../middleware/verifylogin");
+const paginatedResults = require("../middleware/paginatedResults");
 const { check, validationResult } = require("express-validator");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
@@ -72,7 +73,7 @@ router.post(
     }
 );
 //get all books
-router.get("/books",
+router.get("/books",paginatedResults(Book),
           async(req, res)=>{
             try {
               let query = {};
@@ -91,7 +92,7 @@ router.get("/books",
                 	];
                 }
                const books = await Book.find(query);
-              res.json({ status: "success", data: { book: books } });
+              res.json({ status: "success", data: { book: res.paginatedResults } });
                 }
             catch (ex) {
               console.log(ex)
