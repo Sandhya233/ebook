@@ -3,7 +3,8 @@ const router = new express.Router();
 const User = require("../models/user");
 //const { categoryPermissions } = require("../middleware/authorization");
 const {getUserAuthorization} = require("../middleware/authorization");
-const {verifylogin} = require("../middleware/verifylogin");
+const { verifylogin } = require("../middleware/verifylogin");
+const paginatedResults = require("../middleware/paginatedResults");
 const Category = require("../models/category");
 const { check, validationResult, body } = require("express-validator");
 router.post('/category',verifylogin, getUserAuthorization, [
@@ -42,10 +43,10 @@ router.post('/category',verifylogin, getUserAuthorization, [
         })
     }
 })
-router.get("/categories", async (req, res) => {
+router.get("/categories",paginatedResults(Category) ,async (req, res) => {
     try {
       const category = await Category.find({});
-      res.json({ status: "success", data: { category: category } });
+      res.json({ status: "success", data: { category: res.paginatedResults } });
     } catch (error) {
       res.status(400).json({
         status: "error",
